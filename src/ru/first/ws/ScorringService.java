@@ -1,8 +1,8 @@
 package ru.first.ws;
 
 import javax.jws.WebService;
-import java.time.Month;
-import java.time.Year;
+import java.sql.*;
+import java.util.logging.*;
 import java.util.Date;
 import java.util.Calendar;
 
@@ -11,7 +11,45 @@ import java.util.Calendar;
 
 public class ScorringService implements ScorringInterface{
     @Override
-    public String searchExistScore(String firstName, String lastName, String phoneNumber) {return "";}
+    public String searchExistScore(String firstName, String lastName, String phoneNumber)
+    {
+        Connection connection = null;
+        String url = "jdbc:oracle:thin:@localhost:1521:ORCL";
+        String name = "user";
+        String password = "123456";
+        try {
+            Class.forName("oracle.jdbc.OracleDriver");
+            connection = DriverManager.getConnection(url, name, password);
+            if(connection.isValid(5000)) System.out.println("Соединение установлено");
+            Statement statement = null;
+            statement = connection.createStatement();
+            ResultSet result1 = statement.executeQuery(
+                    "SELECT * FROM users where id >2 and id <10");
+            while (result1.next()) {
+                System.out.println("Номер в выборке #" + result1.getRow()
+                        + "\t Номер в базе #" + result1.getInt("id")
+                        + "\t" + result1.getString("username"));
+            }
+            statement.executeUpdate(
+                    "INSERT INTO users(username) values('name')");
+        }
+        catch (Exception ex) {
+            //выводим наиболее значимые сообщения
+            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        return "";
+    }
+
     public String calculate(
             String name,            //no
             String lastName,        //no
