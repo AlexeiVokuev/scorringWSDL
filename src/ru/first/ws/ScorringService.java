@@ -14,7 +14,7 @@ public class ScorringService implements ScorringInterface{
     public String searchExistScore(String firstName, String lastName, String phoneNumber)
     {
         Connection connection = null;
-        String url = "jdbc:oracle:thin:@localhost:1521:ORCL";
+        String url = "jdbc:oracle:thin:@localhost:1521/XE";
         String name = "user";
         String password = "123456";
         try {
