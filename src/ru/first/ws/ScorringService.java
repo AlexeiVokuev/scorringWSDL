@@ -14,9 +14,9 @@ public class ScorringService implements ScorringInterface{
     public String searchExistScore(String firstName, String lastName, String phoneNumber)
     {
         Connection connection = null;
-        String url = "jdbc:oracle:thin:@localhost:1521/XE";
-        String name = "user";
-        String password = "123456";
+        String url = "jdbc:oracle:thin:@chateau:1521/XE";
+        String name = "scorring";
+        String password = "oracle";
         try {
             Class.forName("oracle.jdbc.OracleDriver");
             connection = DriverManager.getConnection(url, name, password);
@@ -24,14 +24,15 @@ public class ScorringService implements ScorringInterface{
             Statement statement = null;
             statement = connection.createStatement();
             ResultSet result1 = statement.executeQuery(
-                    "SELECT * FROM users where id >2 and id <10");
+                    "SELECT * FROM UAT6_PRODUCTION.MVID_PRICE_A where sku_id =" + firstName);
+            System.out.println("Вроде запрос прошел");
             while (result1.next()) {
                 System.out.println("Номер в выборке #" + result1.getRow()
-                        + "\t Номер в базе #" + result1.getInt("id")
-                        + "\t" + result1.getString("username"));
+                        + "\t Номер в базе #" + result1.getString("price_id")
+                        + "\t" + result1.getString("list_price"));
             }
-            statement.executeUpdate(
-                    "INSERT INTO users(username) values('name')");
+            //statement.executeUpdate(
+              //      "INSERT INTO users(username) values('name')");
         }
         catch (Exception ex) {
             //выводим наиболее значимые сообщения
