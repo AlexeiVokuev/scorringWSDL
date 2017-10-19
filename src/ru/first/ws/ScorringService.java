@@ -287,7 +287,7 @@ public class ScorringService implements ScorringInterface{
                 else {
                     System.out.println("Не найден профиль");
                     sql = "INSERT INTO PERSON VALUES (sq_person.nextval, '" + firstName + "', '" + lastName + "', " +
-                            phoneNumber + ", to_date('" + birthday + "', 'DD/MM/YY'))";
+                            phoneNumber + ", to_date('" + birthday + "', 'DD.MM.YY'))";
                     System.out.println("Выполняем запрос:" + sql);
                     int qInsert = statement.executeUpdate(sql);
                     if(qInsert <= 0){
