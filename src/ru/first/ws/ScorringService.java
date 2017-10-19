@@ -11,8 +11,13 @@ import java.util.Calendar;
 
 
 public class ScorringService implements ScorringInterface{
+
+    private Integer currentYear;
+    private Integer currentMonth;
+    private Integer currentDay;
+
     private Integer getScore (
-            Boolean sex,            //male=1 -> +15 , female=0 -> +1
+            Integer sex,            //male=1 -> +15 , female=0 -> +1
             String birthday,        //18-25 -> +10 , 25-35 -> +20 , 35-45 -> +15 , >45 -> +5
             Long monthlyIncome,     //<10k -> +1, 10-20k -> +22, 20-40k -> +44, 40-80k -> +66, >80k -> +88
             Integer houseType,      //rental=0 -> +5 , community=1 -> +1 , own=2 -> +20 ,
@@ -32,29 +37,23 @@ public class ScorringService implements ScorringInterface{
             Integer experience,     //<3 -> +7, 3-10 -> +22, >10 -> +26
             Long costs,             //<10k -> +33, 10-20 -> +21, 20-40 -> +10, >40 -> +1
             Integer creditTerm,     //<3 -> +33, 3-5 -> +22, >5 -> +11
-            Boolean immovables,     //0 -> +1, 1 -> +33
+            Integer immovables,     //0 -> +1, 1 -> +33
             Integer immovablesType, //country=0 -> +10, garage=1, -> +8, apartament=2 -> +15, other=3 -> +3
-            Boolean car,            //0 -> +1, 1-> +22
+            Integer car,            //0 -> +1, 1-> +22
             String carMark,         //?
             Integer autoYear,       //<5 -> +20, 5-10 -> +14, >10 -> +7
-            Boolean additionalIncome,       //0 -> +1, 1 -> +10
+            Integer additionalIncome,       //0 -> +1, 1 -> +10
             Integer additionalIncomeType,   //alimony=0 -> +10, insurance=1 -> +8, houseWork=2 -> +6, benefit=3 -> +10
             //lease=4 -> +21, other=5 -> +3
             Long additionalIncomeSumm,      //<5k -> +6, 5-15k -> +18, 15-30k -> +31, 30-50k -> +45, >50k -> +67
-            Boolean effectiveCredit,        //0 -> +30, 1 -> +1
+            Integer effectiveCredit,        //0 -> +30, 1 -> +1
             Long effectiveCreditSumm
     )
     {
         Integer result = 0;
-        Calendar calendar = Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
-        calendar.setTime(new Date());
-        Integer currentYear = calendar.get(Calendar.YEAR);
-        Integer currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-        Integer currentMonth = calendar.get(Calendar.MONTH);
-
         try {
             // SEX ------------------ male=1 -> +15 , female=0 -> +1
-            if (sex) result += 15;
+            if (sex == 1) result += 15;
             else result += 1;
             System.out.println("stage: Sex. Result = " + result);
 
@@ -181,7 +180,7 @@ public class ScorringService implements ScorringInterface{
             System.out.println("stage: CreditTerm. Result = " + result);
 
             // IMMOVABLES ------------------ 0 -> +1, 1 -> +33
-            if (immovables) result += 33;
+            if (immovables == 1) result += 33;
             else result += 1;
             System.out.println("stage: Immovables. Result = " + result);
 
@@ -195,7 +194,7 @@ public class ScorringService implements ScorringInterface{
             System.out.println("stage: ImmovablesType. Result = " + result);
 
             // CAR ------------------ 0 -> +1, 1-> +22
-            if (car) result += 22;
+            if (car == 1) result += 22;
             else result += 1;
             System.out.println("stage: Car. Result = " + result);
 
@@ -210,7 +209,7 @@ public class ScorringService implements ScorringInterface{
             System.out.println("stage: AutoYear. Result = " + result);
 
             // ADDITIONAL_INCOME ------------------ 0 -> +1, 1 -> +10
-            if (additionalIncome) result += 1;
+            if (additionalIncome == 1) result += 1;
             else result += 10;
             System.out.println("stage: AdditionalIncome. Result = " + result);
 
@@ -236,7 +235,7 @@ public class ScorringService implements ScorringInterface{
             System.out.println("stage: AdditionalIncomeSumm. Result = " + result);
 
             // EFFECTIVE_CREDIT ------------------ 0 -> +30, 1 -> +1
-            if (effectiveCredit) result += 1;
+            if (effectiveCredit == 1) result += 1;
             else result += 30;
             System.out.println("stage: EffectiveCredit. Result = " + result);
 
@@ -264,7 +263,7 @@ public class ScorringService implements ScorringInterface{
         String url = "jdbc:oracle:thin:@localhost:1521/XE";
         String name = "scoring";
         String password = "oracle";
-        Integer i = 0;
+        Integer i = -1;
         try {
             Locale.setDefault(Locale.ENGLISH);
             System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
@@ -277,15 +276,29 @@ public class ScorringService implements ScorringInterface{
             Statement statement = null;
             statement = connection.createStatement();
 
-            String sql = "SELECT * FROM PERSON where \"name\" = '" + firstName + "' and \"last_name\" = '" +
-                    lastName + "' and \"phone_number\" = " + phoneNumber +
-                    "and \"birthday\" = to_date('"+ birthday +"', 'DD.MM.YY')";
-            System.out.println("Выполняем запрос:" + sql);
-            ResultSet qResult = statement.executeQuery(sql);
-            System.out.println("Запрос выполнен");
+            i = 0;
+            while (i == 0) {
+                String sql = "SELECT * FROM PERSON where \"name\" = '" + firstName + "' and \"last_name\" = '" +
+                        lastName + "' and \"phone_number\" = " + phoneNumber +
+                        " and \"birthday\" = to_date('" + birthday + "', 'DD.MM.YY')";
+                System.out.println("Выполняем запрос:" + sql);
+                ResultSet qResult = statement.executeQuery(sql);
+                System.out.println("Запрос выполнен");
 
-            while (qResult.next()) {
-                i = qResult.getInt("person_id");
+                if (qResult.next())
+                    i = qResult.getInt("person_id");
+                else {
+                    System.out.println("Не найден профиль");
+                    sql = "INSERT INTO PERSON VALUES (sq_person.nextval, '" + firstName + "', '" + lastName + "', " +
+                            phoneNumber + ", to_date('" + birthday + "', 'DD/MM/YY'))";
+                    System.out.println("Выполняем запрос:" + sql);
+                    int qInsert = statement.executeUpdate(sql);
+                    if(qInsert <= 0){
+                        System.out.println("Запрос не прошел. Выходим с ошибкой" + qInsert);
+                        return -1;
+                    }
+
+                }
             }
 
         }
@@ -322,46 +335,48 @@ public class ScorringService implements ScorringInterface{
         String url = "jdbc:oracle:thin:@localhost:1521/XE";
         String name = "scoring";
         String password = "oracle";
+        Locale.setDefault(Locale.ENGLISH);
+        System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
+        ResultSet qRes = null;
+
+        String sql = "SELECT * FROM GET_STATUS where \"name\" = '" + firstName + "' and \"last_name\" = '" +
+                    lastName + "' and \"phone_number\" = " + phoneNumber;
+
         try {
-            Locale.setDefault(Locale.ENGLISH);
-            System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
             Class.forName("oracle.jdbc.OracleDriver");
             connection = DriverManager.getConnection(url, name, password);
 
-            if(connection.isValid(5000))
+            if (connection.isValid(5000))
                 System.out.println("Соединение установлено");
 
             Statement statement = null;
             statement = connection.createStatement();
 
-            String sql = "SELECT * FROM GET_STATUS where \"name\" = '" + firstName + "' and \"last_name\" = '" +
-                    lastName + "' and \"phone_number\" = " + phoneNumber;
             System.out.println("Выполняем запрос:" + sql);
-            ResultSet qResult = statement.executeQuery(sql);
+            qRes = statement.executeQuery(sql);
             System.out.println("Запрос выполнен");
 
-            while (qResult.next()) {
+            while (qRes.next()) {
                 result.insert(result.indexOf("</table>"),
                         "<tr>\n" +
-                         "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("name") + "</td>\n" +
-                         "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("last_name") + "</td>\n" +
-                         "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("phone_number") + "</td>\n" +
-                         "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("quest_date") + "</td>\n" +
-                         "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("status") + "</td>\n" +
-                         "<td <valign=\"top\" align=\"center\"> Link? </td>\n" +
-                         "</tr>\n");
+                                "<td <valign=\"top\" align=\"center\">" +
+                                qRes.getString("name") + "</td>\n" +
+                                "<td <valign=\"top\" align=\"center\">" +
+                                qRes.getString("last_name") + "</td>\n" +
+                                "<td <valign=\"top\" align=\"center\">" +
+                                qRes.getString("phone_number") + "</td>\n" +
+                                "<td <valign=\"top\" align=\"center\">" +
+                                qRes.getString("quest_date") + "</td>\n" +
+                                "<td <valign=\"top\" align=\"center\">" +
+                                qRes.getString("status") + "</td>\n" +
+                                "<td <valign=\"top\" align=\"center\"> Link? </td>\n" +
+                                "</tr>\n");
             }
 
         }
         catch (Exception ex) {
             Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        finally {
+        } finally {
             if (connection != null) {
                 try {
                     connection.close();
@@ -370,16 +385,14 @@ public class ScorringService implements ScorringInterface{
                 }
             }
         }
-
-        String sResult = new String(result);
-        return sResult;
+        return result.toString();
     }
 
     public String calculate(
             String firstName,       //no
             String lastName,        //no
             String phoneNumber,     //no
-            Boolean sex,            //male=1 -> +15 , female=0 -> +1
+            Integer sex,            //male=1 -> +15 , female=0 -> +1
             String birthday,        //18-25 -> +10 , 25-35 -> +20 , 35-45 -> +15 , >45 -> +5
             Long monthlyIncome,     //<10k -> +1, 10-20k -> +22, 20-40k -> +44, 40-80k -> +66, >80k -> +88
             Integer passportSeries, //no
@@ -402,24 +415,24 @@ public class ScorringService implements ScorringInterface{
             Integer experience,     //<3 -> +7, 3-10 -> +22, >10 -> +26
             Long costs,             //<10k -> +33, 10-20 -> +21, 20-40 -> +10, >40 -> +1
             Integer creditTerm,     //<3 -> +33, 3-5 -> +22, >5 -> +11
-            Boolean immovables,     //0 -> +1, 1 -> +33
+            Integer immovables,     //0 -> +1, 1 -> +33
             Integer immovablesType, //country=0 -> +10, garage=1, -> +8, apartament=2 -> +15, other=3 -> +3
-            Boolean car,            //0 -> +1, 1-> +22
+            Integer car,            //0 -> +1, 1-> +22
             String carMark,         //?
             Integer autoYear,       //<5 -> +20, 5-10 -> +14, >10 -> +7
-            Boolean additionalIncome,       //0 -> +1, 1 -> +10
+            Integer additionalIncome,       //0 -> +1, 1 -> +10
             Integer additionalIncomeType,   //alimony=0 -> +10, insurance=1 -> +8, houseWork=2 -> +6, benefit=3 -> +10
                                             //lease=4 -> +21, other=5 -> +3
             Long additionalIncomeSumm,      //<5k -> +6, 5-15k -> +18, 15-30k -> +31, 30-50k -> +45, >50k -> +67
-            Boolean effectiveCredit,        //0 -> +30, 1 -> +1
+            Integer effectiveCredit,        //0 -> +30, 1 -> +1
             Long effectiveCreditSumm        //<10k -> +33, 10-20k -> +11, 20-40k -> +6, >40k -> +1
     )
     {
         Calendar calendar = Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
         calendar.setTime(new Date());
-        Integer currentYear = calendar.get(Calendar.YEAR);
-        Integer currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-        Integer currentMonth = calendar.get(Calendar.MONTH);
+        currentYear = calendar.get(Calendar.YEAR);
+        currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        currentMonth = calendar.get(Calendar.MONTH);
 
         System.out.println("Calculate. stage: Start");
         // проверяем, есть ли в базе такой персонаж
@@ -471,12 +484,45 @@ public class ScorringService implements ScorringInterface{
                 ", " + status.toString() + ", " + result.toString() + ", " +
                  "to_date('" + currentDay.toString() + "/" + currentMonth.toString() + "/" + currentYear.toString()+
                 "', 'DD/MM/YY'))";
-        System.out.println("Выполняем запрос:" + sqlInsert);
+
+        Connection connection = null;
+        String url = "jdbc:oracle:thin:@localhost:1521/XE";
+        String name = "scoring";
+        String password = "oracle";
+        Integer itemsAffect = -1;
+        try {
+            Locale.setDefault(Locale.ENGLISH);
+            System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
+            Class.forName("oracle.jdbc.OracleDriver");
+            connection = DriverManager.getConnection(url, name, password);
+
+            if(connection.isValid(5000))
+                System.out.println("Соединение установлено");
+
+            Statement statement = null;
+            statement = connection.createStatement();
+                System.out.println("Выполняем запрос:" + sqlInsert);
+                itemsAffect = statement.executeUpdate(sqlInsert);
+                System.out.println("Запрос выполнен");
+            }
+        catch (Exception ex) {
+            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        if (itemsAffect > 0)
+            System.out.println("Запрос прошел");
+        else System.out.println("Запрос упал");
 
         return ":Vash resultat:" + result.toString();
 
     } // CALCULATE ---------------- END
 } // CLASS ---------------- END
-//INSERT INTO PERSON VALUES (sq_test.nextval, 'Test', 'Test', 79996663311, to_date('04/12/1991', 'DD/MM/YY'));
-//statement.executeUpdate(
-//      "INSERT INTO users(username) values('name')");

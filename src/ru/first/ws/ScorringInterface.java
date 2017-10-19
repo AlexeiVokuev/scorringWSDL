@@ -1,14 +1,12 @@
 package ru.first.ws;
 
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.WebParam;
-import java.time.Year;
-import java.util.Date;
 
 
 @WebService
@@ -49,7 +47,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "sex"
             )
-            Boolean sex,
+            Integer sex,
             @WebParam(
                     name = "birthday"
             )
@@ -113,7 +111,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "immovables"
             )
-            Boolean immovables,
+            Integer immovables,
             @WebParam(
                     name = "immovablesType"
             )
@@ -121,7 +119,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "car"
             )
-            Boolean car,
+            Integer car,
             @WebParam(
                     name = "carMark"
             )
@@ -133,7 +131,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "additionalIncome"
             )
-            Boolean additionalIncome,
+            Integer additionalIncome,
             @WebParam(
                     name = "additionalIncomeType"
             )
@@ -145,7 +143,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "effectiveCredit"
             )
-            Boolean effectiveCredit,
+            Integer effectiveCredit,
             @WebParam(
                     name = "effectiveCreditSumm"
             )
