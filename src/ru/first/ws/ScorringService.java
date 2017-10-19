@@ -64,13 +64,11 @@ public class ScorringService implements ScorringInterface{
             if(days < 0 && months == 0) months--;
             if (months < 0) years--;
 
-            if (years < 18){
-                result = 0;
-                return -2;
-            } else if (years < 25) result += 10;
-            else if (years < 35) result += 20;
-            else if (years < 45) result += 15;
-            else result += 5;
+            if (years < 18) return -2;
+                else if (years < 25) result += 10;
+                    else if (years < 35) result += 20;
+                        else if (years < 45) result += 15;
+                            else result += 5;
             System.out.println("stage: Age. Result = " + result);
 
             // MONTHLY_INCOME ------------------ <10k -> +1, 10-20k -> +22, 20-40k -> +44, 40-80k -> +66, >80k -> +88
@@ -273,8 +271,7 @@ public class ScorringService implements ScorringInterface{
             if(connection.isValid(5000))
                 System.out.println("Соединение установлено");
 
-            Statement statement = null;
-            statement = connection.createStatement();
+            Statement statement = connection.createStatement();
 
             i = 0;
             while (i == 0) {
@@ -320,7 +317,7 @@ public class ScorringService implements ScorringInterface{
     @Override
     public String searchExistScore(String firstName, String lastName, String phoneNumber)
     {
-        StringBuffer result = new StringBuffer("<table border=\"1\" cellpadding=\"7\" cellspacing=\"0\">\n" +
+        StringBuilder result = new StringBuilder("<table border=\"1\" cellpadding=\"7\" cellspacing=\"0\">\n" +
                 "<tr>\n"+
                 "<td <valign=\"top\" align=\"center\"> Name </td>\n" +
                 "<td <valign=\"top\" align=\"center\"> LastName </td>\n" +
@@ -349,8 +346,7 @@ public class ScorringService implements ScorringInterface{
             if (connection.isValid(5000))
                 System.out.println("Соединение установлено");
 
-            Statement statement = null;
-            statement = connection.createStatement();
+            Statement statement = connection.createStatement();
 
             System.out.println("Выполняем запрос:" + sql);
             qRes = statement.executeQuery(sql);
@@ -499,8 +495,7 @@ public class ScorringService implements ScorringInterface{
             if(connection.isValid(5000))
                 System.out.println("Соединение установлено");
 
-            Statement statement = null;
-            statement = connection.createStatement();
+            Statement statement = connection.createStatement();
                 System.out.println("Выполняем запрос:" + sqlInsert);
                 itemsAffect = statement.executeUpdate(sqlInsert);
                 System.out.println("Запрос выполнен");
