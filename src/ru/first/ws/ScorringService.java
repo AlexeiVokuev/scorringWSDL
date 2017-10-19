@@ -36,7 +36,7 @@ public class ScorringService implements ScorringInterface{
             Statement statement = null;
             statement = connection.createStatement();
             ResultSet qResult = statement.executeQuery(
-                    "SELECT * FROM PERSON where name =`" + firstName + "` and last_name = `" +
+                    "SELECT * FROM GET_STATUS where name =`" + firstName + "` and last_name = `" +
                          lastName + "` and phone_number = `" + phoneNumber +"`;");
             System.out.println("Запрос выполнен");
             while (qResult.next()) {
@@ -49,9 +49,9 @@ public class ScorringService implements ScorringInterface{
                          "<td <valign=\"top\" align=\"center\">" +
                                 qResult.getString("phone_number") + "</td>\n" +
                          "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("last_name") + "</td>\n" +
+                                qResult.getString("quest_date") + "</td>\n" +
                          "<td <valign=\"top\" align=\"center\">" +
-                                qResult.getString("last_name") + "</td>\n" +
+                                qResult.getString("status") + "</td>\n" +
                          "<td <valign=\"top\" align=\"center\"> Link? </td>\n" +
                          "</tr>\n");
             }
