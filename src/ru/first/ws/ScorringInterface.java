@@ -53,7 +53,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "birthday"
             )
-            Date birthday,
+            String birthday,
             @WebParam(
                     name = "monthlyIncome"
             )
