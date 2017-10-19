@@ -11,7 +11,7 @@ Target Server Type    : ORACLE
 Target Server Version : 110200
 File Encoding         : 65001
 
-Date: 2017-10-19 07:28:52
+Date: 2017-10-19 08:51:20
 */
 
 
@@ -107,7 +107,7 @@ CREATE SEQUENCE "SCORING"."SQ_TEST"
  INCREMENT BY 1
  MINVALUE 1
  MAXVALUE 9999999999
- START WITH 21
+ START WITH 2
  CACHE 20;
 
 -- ----------------------------
