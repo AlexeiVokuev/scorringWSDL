@@ -37,7 +37,7 @@ public interface ScorringInterface{
             @WebParam(
                     name = "firstName"
             )
-            String name,
+            String firstName,
             @WebParam(
                     name = "lastName"
             )

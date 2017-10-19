@@ -6,5 +6,6 @@ public class ScorringServicePub {
     public static void main (String... args)
     {
         Endpoint.publish("http://localhost:1986/ws/Scorring",new ScorringService());
+
     }
 }
