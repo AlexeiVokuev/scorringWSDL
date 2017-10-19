@@ -16,6 +16,10 @@ public class ScorringService implements ScorringInterface{
     private Integer currentMonth;
     private Integer currentDay;
 
+    private String url = "jdbc:oracle:thin:@localhost:1521/XE";
+    private String name = "scoring";
+    private String password = "oracle";
+
     private Integer getScore (
             Integer sex,            //male=1 -> +15 , female=0 -> +1
             String birthday,        //18-25 -> +10 , 25-35 -> +20 , 35-45 -> +15 , >45 -> +5
@@ -237,20 +241,16 @@ public class ScorringService implements ScorringInterface{
             else result += 30;
             System.out.println("stage: EffectiveCredit. Result = " + result);
 
-
             // EFFECTIVE_CREDIT_SUMM ------------------ <10k -> +33, 10-20k -> +11, 20-40k -> +6, >40k -> +1
             if (effectiveCreditSumm < 10000) result += 33;
             else if (effectiveCreditSumm < 20000) result += 11;
             else if (effectiveCreditSumm < 40000) result += 6;
             else result += 1;
             System.out.println("stage: EffectiveCreditSumm. Result = " + result);
-
         } // TRY ---------------- END
-
         catch(Exception e)
         {
             return -1;
-
         } // CATCH ---------------- END
         return result;
     }
@@ -258,11 +258,9 @@ public class ScorringService implements ScorringInterface{
     private Integer getPersonId(String firstName, String lastName, String phoneNumber, String birthday)
     {
         Connection connection = null;
-        String url = "jdbc:oracle:thin:@localhost:1521/XE";
-        String name = "scoring";
-        String password = "oracle";
         Integer i = -1;
         try {
+
             Locale.setDefault(Locale.ENGLISH);
             System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
             Class.forName("oracle.jdbc.OracleDriver");
@@ -294,10 +292,8 @@ public class ScorringService implements ScorringInterface{
                         System.out.println("Запрос не прошел. Выходим с ошибкой" + qInsert);
                         return -1;
                     }
-
                 }
             }
-
         }
         catch (Exception ex) {
             Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -329,9 +325,6 @@ public class ScorringService implements ScorringInterface{
                 "</table>\n");
 
         Connection connection = null;
-        String url = "jdbc:oracle:thin:@localhost:1521/XE";
-        String name = "scoring";
-        String password = "oracle";
         Locale.setDefault(Locale.ENGLISH);
         System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
         ResultSet qRes = null;
@@ -368,7 +361,6 @@ public class ScorringService implements ScorringInterface{
                                 "<td <valign=\"top\" align=\"center\"> Link? </td>\n" +
                                 "</tr>\n");
             }
-
         }
         catch (Exception ex) {
             Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -482,9 +474,6 @@ public class ScorringService implements ScorringInterface{
                 "', 'DD/MM/YY'))";
 
         Connection connection = null;
-        String url = "jdbc:oracle:thin:@localhost:1521/XE";
-        String name = "scoring";
-        String password = "oracle";
         Integer itemsAffect = -1;
         try {
             Locale.setDefault(Locale.ENGLISH);
@@ -499,7 +488,7 @@ public class ScorringService implements ScorringInterface{
                 System.out.println("Выполняем запрос:" + sqlInsert);
                 itemsAffect = statement.executeUpdate(sqlInsert);
                 System.out.println("Запрос выполнен");
-            }
+        }
         catch (Exception ex) {
             Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -517,7 +506,6 @@ public class ScorringService implements ScorringInterface{
             System.out.println("Запрос прошел");
         else System.out.println("Запрос упал");
 
-        return ":Vash resultat:" + result.toString();
-
+        return "Vash resultat:" + result.toString() + ". Status = " + status.toString();
     } // CALCULATE ---------------- END
 } // CLASS ---------------- END
