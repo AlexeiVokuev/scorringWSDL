@@ -67,6 +67,7 @@ public class ScorringService implements ScorringInterface{
             Integer days = currentDay - Integer.parseInt(birthday.substring(6,7));
             if(days < 0 && months == 0) months--;
             if (months < 0) years--;
+            System.out.println("stage: Age. Age = " + years);
 
             if (years < 18) return -2;
                 else if (years < 25) result += 10;
@@ -459,7 +460,7 @@ public class ScorringService implements ScorringInterface{
         if (result > 700) status = 1;
         else status = 0;
 
-        String sqlInsert = "INSERT INTO QUEST VALUES (sq_test.nextval, "+
+        String sqlInsert = "INSERT INTO QUEST VALUES (sq_quest.nextval, "+
                 sex.toString() + ", " + monthlyIncome.toString() + ", " + passportSeries.toString() + ", " +
                 passportNumber.toString() + ", '" + address + "', " + houseType.toString() + ", " +
                 familyStatus.toString() + ", " + childrenAmount.toString() + ", " + education.toString() + ", " +
