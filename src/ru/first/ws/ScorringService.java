@@ -12,13 +12,49 @@ import java.util.Calendar;
 
 public class ScorringService implements ScorringInterface{
 
-    private Integer currentYear;
-    private Integer currentMonth;
-    private Integer currentDay;
+    private Integer currentYear=0;
+    private Integer currentMonth=0;
+    private Integer currentDay=0;
+    private Integer approve;
+    private String cheat_type, cheat_value;
 
     private String url = "jdbc:oracle:thin:@localhost:1521/XE";
     private String name = "scoring";
     private String password = "oracle";
+
+    private Integer LoadSettings ()
+    {
+  /*      //инициализация настроек: approve, cheat_type, cheat_value
+        System.out.println("LoadSettigs. Stage: Start");
+        Locale.setDefault(Locale.ENGLISH);
+        Connection connection = null;
+        try{
+            System.out.println("Попытка соединения с:" + url + " | " + name + " | " + password);
+            Class.forName("oracle.jdbc.OracleDriver");
+            connection = DriverManager.getConnection(url, name, password);
+
+            if(connection.isValid(5000))
+                System.out.println("Соединение установлено");
+
+            Statement statement = connection.createStatement();
+
+            String sql = "SELECT * FROM SETTINGS where \"name\" = '" + firstName + "' and \"last_name\" = '" +
+                    lastName + "' and \"phone_number\" = " + phoneNumber +
+                    " and \"birthday\" = to_date('" + birthday + "', 'DD.MM.YY')";
+            System.out.println("Выполняем запрос:" + sql);
+            ResultSet qResult = statement.executeQuery(sql);
+            System.out.println("Запрос выполнен");
+
+        }
+        catch(Exception ex){
+
+        }
+        finally{
+
+        }
+        */
+        return 0;
+    }
 
     private Integer getScore (
             Integer sex,            //male=1 -> +15 , female=0 -> +1
@@ -420,8 +456,11 @@ public class ScorringService implements ScorringInterface{
         Calendar calendar = Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
         calendar.setTime(new Date());
         currentYear = calendar.get(Calendar.YEAR);
-        currentDay = calendar.get(Calendar.DAY_OF_MONTH);
         currentMonth = calendar.get(Calendar.MONTH);
+        Integer Day = calendar.get(Calendar.DAY_OF_MONTH);
+        //если сегодня мы не получали настроек, надо за ними сходить
+        if (Day < currentDay) LoadSettings();
+        currentDay = Day;
 
         System.out.println("Calculate. stage: Start");
         // проверяем, есть ли в базе такой персонаж
@@ -455,9 +494,9 @@ public class ScorringService implements ScorringInterface{
                  effectiveCreditSumm);
         System.out.println("Calculate. stage: Done. Result = " + result);
         System.out.println("Calculate. stage: SaveResult. ");
-        //добавить в настройку
+
         Integer status = 0;
-        if (result > 700) status = 1;
+        if (result > approve) status = 1;
         else status = 0;
 
         String sqlInsert = "INSERT INTO QUEST VALUES (sq_quest.nextval, "+
