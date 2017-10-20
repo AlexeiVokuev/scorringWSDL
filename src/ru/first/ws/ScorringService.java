@@ -549,3 +549,5 @@ public class ScorringService implements ScorringInterface{
         return "Vash resultat:" + result.toString() + ". Status = " + status.toString();
     } // CALCULATE ---------------- END
 } // CLASS ---------------- END
+
+//select * from settings where CURRENT_DATE > START_DATE and CURRENT_DATE < END_DATE;

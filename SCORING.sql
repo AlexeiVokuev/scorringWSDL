@@ -11,7 +11,7 @@
  Target Server Version : 110200
  File Encoding         : 65001
 
- Date: 19/10/2017 12:27:25
+ Date: 20/10/2017 17:42:30
 */
 
 
@@ -101,6 +101,37 @@ DISABLE ROW MOVEMENT
 ;
 
 -- ----------------------------
+-- Table structure for SETTINGS
+-- ----------------------------
+DROP TABLE "SCORING"."SETTINGS";
+CREATE TABLE "SCORING"."SETTINGS" (
+  "SETTING_ID" NUMBER(32) NOT NULL ,
+  "APPROVE" NUMBER(4) ,
+  "CHEAT_TYPE" VARCHAR2(20 BYTE) ,
+  "CHEAT_VALUE" VARCHAR2(20 BYTE) ,
+  "START_DATE" DATE ,
+  "END_DATE" DATE 
+)
+TABLESPACE "SYSTEM"
+LOGGING
+NOCOMPRESS
+PCTFREE 10
+INITRANS 1
+STORAGE (
+  INITIAL 65536 
+  NEXT 1048576 
+  MINEXTENTS 1
+  MAXEXTENTS 2147483645
+  FREELISTS 1
+  FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT
+)
+PARALLEL 1
+NOCACHE
+DISABLE ROW MOVEMENT
+;
+
+-- ----------------------------
 -- View structure for GET_STATUS
 -- ----------------------------
 CREATE OR REPLACE VIEW "SCORING"."GET_STATUS" AS SELECT
@@ -120,10 +151,16 @@ DROP SEQUENCE "SCORING"."SQ_PERSON";
 CREATE SEQUENCE "SCORING"."SQ_PERSON" MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 CACHE 20;
 
 -- ----------------------------
--- Sequence structure for SQ_TEST
+-- Sequence structure for SQ_QUEST
 -- ----------------------------
-DROP SEQUENCE "SCORING"."SQ_TEST";
-CREATE SEQUENCE "SCORING"."SQ_TEST" MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 CACHE 20;
+DROP SEQUENCE "SCORING"."SQ_QUEST";
+CREATE SEQUENCE "SCORING"."SQ_QUEST" MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 CACHE 20;
+
+-- ----------------------------
+-- Sequence structure for SQ_SETTINGS
+-- ----------------------------
+DROP SEQUENCE "SCORING"."SQ_SETTINGS";
+CREATE SEQUENCE "SCORING"."SQ_SETTINGS" MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 CACHE 20;
 
 -- ----------------------------
 -- Checks structure for table PERSON
@@ -131,40 +168,16 @@ CREATE SEQUENCE "SCORING"."SQ_TEST" MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 
 ALTER TABLE "SCORING"."PERSON" ADD CONSTRAINT "SYS_C007001" CHECK ("person_id" IS NOT NULL) NOT DEFERRABLE INITIALLY IMMEDIATE NORELY VALIDATE;
 
 -- ----------------------------
--- Triggers structure for table PERSON
--- ----------------------------
-CREATE TRIGGER "SCORING"."auto_inc_person" BEFORE INSERT OR UPDATE OF "person_id" ON "SCORING"."PERSON" REFERENCING OLD AS "OLD" NEW AS "NEW" FOR EACH ROW DISABLE 
-begin
-   if :new.person_id is null then
-     select sq_test.nextval into :new.person_id from SYSTEM.dual;
-   end if;
-end;
--- ----------------------------
--- Primary Key structure for table PERSON
--- ----------------------------
-ALTER TABLE "SCORING"."PERSON" ADD PRIMARY KEY ("person_id");
-
--- ----------------------------
--- Indexes structure for table QUEST
--- ----------------------------
-
--- ----------------------------
--- Checks structure for table QUEST
--- ----------------------------
-ALTER TABLE "SCORING"."QUEST" ADD CHECK ("quest_id" IS NOT NULL);
-
--- ----------------------------
--- Primary Key structure for table QUEST
--- ----------------------------
-ALTER TABLE "SCORING"."QUEST" ADD PRIMARY KEY ("quest_id");
-
--- ----------------------------
--- Foreign Key structure for table "SCORING"."QUEST"
--- ----------------------------
-ALTER TABLE "SCORING"."QUEST" ADD FOREIGN KEY ("person_id") REFERENCES "SCORING"."PERSON" ("person_id") ON DELETE SET NULL;
-/
-
--- ----------------------------
 -- Checks structure for table QUEST
 -- ----------------------------
 ALTER TABLE "SCORING"."QUEST" ADD CONSTRAINT "SYS_C007002" CHECK ("quest_id" IS NOT NULL) NOT DEFERRABLE INITIALLY IMMEDIATE NORELY VALIDATE;
+
+-- ----------------------------
+-- Primary Key structure for table SETTINGS
+-- ----------------------------
+ALTER TABLE "SCORING"."SETTINGS" ADD CONSTRAINT "SETTINGS_PK" PRIMARY KEY ("SETTING_ID");
+
+-- ----------------------------
+-- Checks structure for table SETTINGS
+-- ----------------------------
+ALTER TABLE "SCORING"."SETTINGS" ADD CONSTRAINT "SYS_C007003" CHECK ("SETTING_ID" IS NOT NULL) NOT DEFERRABLE INITIALLY IMMEDIATE NORELY VALIDATE;
