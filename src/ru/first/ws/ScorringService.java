@@ -16,7 +16,8 @@ public class ScorringService implements ScorringInterface{
     private Integer currentMonth=0;
     private Integer currentDay=0;
     private Integer approve = 0;
-    private String cheat_type = "",  // percent_per_day - сколько процентов из всех заявок в день должно быть одобрено,
+    private String cheat_type = "",  // percent_per_day - сколько процентов из всех заявок в день должно быть одобрено
+                                    // percent_per_last_hour - сколько процентов из всех в час должно быть одобрено
                                     // region_of_god   - авто-одобрение по адресу (Город)
                                     // car_of_god      - авто-одобрение по автомобилю (марка)
             cheat_value = "";
@@ -42,8 +43,8 @@ public class ScorringService implements ScorringInterface{
 
             Statement statement = connection.createStatement();
 
-            String sql = "SELECT * FROM SETTINGS WHERE CURRENT_DATE > START_DATE AND CURRENT_DATE < END_DATE ORDER BY" +
-                    " START_DATE DESC";
+            String sql = "SELECT * FROM SETTINGS WHERE CURRENT_DATE > \"start_date\" AND CURRENT_DATE" +
+                    " < \"end_date\"ORDER BY \"start_date\" DESC";
             System.out.println("LoadSettings. Выполняем запрос:" + sql);
             ResultSet qResult = statement.executeQuery(sql);
             System.out.println("LoadSettings. Запрос выполнен");
@@ -54,7 +55,11 @@ public class ScorringService implements ScorringInterface{
                 cheat_value = qResult.getString("CHEAT_VALUE");
                 result = 0;
                 System.out.println("LoadSettings. Данные по настройкам загружены: APPROVE = " + approve +
-                ", CHEAT_TYPE = " + cheat_type + ", CHEAT_VALUE = " + cheat_value);
+                    ", CHEAT_TYPE = " + cheat_type + ", CHEAT_VALUE = " + cheat_value);
+            }
+            else{
+                System.out.println("LoadSettings. Настроек в базе нет. Принимаем стандартный APPROVE = 700");
+                approve = 700;
             }
         }
         catch(Exception ex){
@@ -166,9 +171,9 @@ public class ScorringService implements ScorringInterface{
             System.out.println("getScore. stage: Sex. Result = " + result);
 
             // AGE ------------------ 18-25 -> +10 , 25-35 -> +20 , 35-45 -> +15 , >45 -> +5
-            Integer years = currentYear - Integer.parseInt(birthday.substring(0,1));
-            Integer months = currentMonth - Integer.parseInt(birthday.substring(3,4));
-            Integer days = currentDay - Integer.parseInt(birthday.substring(6,7));
+            Integer years = currentYear - Integer.parseInt(birthday.substring(6,10));
+            Integer months = currentMonth - Integer.parseInt(birthday.substring(3,5));
+            Integer days = currentDay - Integer.parseInt(birthday.substring(0,2));
             if(days < 0 && months == 0) months--;
             if (months < 0) years--;
             System.out.println("getScore. stage: Age. Age = " + years);
@@ -182,6 +187,7 @@ public class ScorringService implements ScorringInterface{
 
             // MONTHLY_INCOME ------------------ <10k -> +1, 10-20k -> +22, 20-40k -> +44, 40-80k -> +66, >80k -> +88
             result += Math.round(monthlyIncome / 10000) + Math.round(monthlyIncome / 1000);
+            System.out.println("getScore. stage: MonthlyIncome. Result = " + result);
 
             // HOUSE_TYPE ------------------ //rental=0 -> +5 , community=1 -> +1 , own=2 -> +20,
             // business=3 -> + 10 , other=4 -> +1
@@ -203,9 +209,9 @@ public class ScorringService implements ScorringInterface{
                 case 3: result += 20;
                 case 4: result += 5;
             }
-            System.out.println("getScore. stage: FAMILY_STATUS. Result = " + result);
+            System.out.println("getScore. stage: FamilyStatus. Result = " + result);
 
-            //CHILDREN_AMOUNT ------------------ 0 -> +30, 1-2 -> +20, 3-5 -> +7, >5 -> +1
+            // CHILDREN_AMOUNT ------------------ 0 -> +30, 1-2 -> +20, 3-5 -> +7, >5 -> +1
             if (childrenAmount == 0) result += 30;
             else if (childrenAmount <= 2) result += 20;
             else if (childrenAmount <= 5) result += 7;
@@ -225,7 +231,7 @@ public class ScorringService implements ScorringInterface{
             }
             System.out.println("getScore. stage: Education. Result = " + result);
 
-            //SOCIAL_STATUS ------------------ work=0 -> +25, stud=1 -> +3, pens=2 -> +12, business=3 -> +20,
+            // SOCIAL_STATUS ------------------ work=0 -> +25, stud=1 -> +3, pens=2 -> +12, business=3 -> +20,
             // state=4 -> +30, homebody=5 -> +1
             switch (socialStatus) {
                 case 0: result += 25;
@@ -353,19 +359,6 @@ public class ScorringService implements ScorringInterface{
             else result += 1;
             System.out.println("getScore. stage: EffectiveCreditSumm. Result = " + result);
 
-            System.out.println("getScore. stage: Cheat check. Result = " + result);
-
-            if (cheat_type.compareToIgnoreCase("") != 0){
-                if (cheat_type.compareToIgnoreCase("car_of_god") == 0){
-                    if(cheat_type.equals(carMark)) result += approve;
-                }
-                if (cheat_type.compareToIgnoreCase("region_of_god") == 0){
-                    if(cheat_value.equals(address.substring(0,address.indexOf(",")))) result += approve;
-                }
-                if (cheat_type.compareToIgnoreCase("percent_per_day") == 0 ){
-                    if (do_percent_per_day_cheat() == 1) result += approve;
-                }
-            }
             System.out.println("getScore. stage: Done. Result = " + result);
 
         } // TRY ---------------- END
@@ -541,9 +534,16 @@ public class ScorringService implements ScorringInterface{
         Calendar calendar = Calendar.getInstance(java.util.TimeZone.getDefault(), java.util.Locale.getDefault());
         calendar.setTime(new Date());
         currentYear = calendar.get(Calendar.YEAR);
-        currentMonth = calendar.get(Calendar.MONTH) + 1;
-        currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-        LoadSettings();
+        Integer Month = calendar.get(Calendar.MONTH) + 1;
+        Integer Day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        if (Day > currentDay && Month >= currentMonth){
+            System.out.println("Calculate. За сегодня еще не загружались настройки");
+            LoadSettings();
+        }
+        currentMonth = Month;
+        currentDay = Day;
+        System.out.println("Calculate. Получена текущая дата: " + currentDay + "." + currentMonth + "." + currentYear);
 
         // проверяем, есть ли в базе такой персонаж
         // если нет - создаем его и получаем person_id
@@ -576,12 +576,37 @@ public class ScorringService implements ScorringInterface{
                  effectiveCredit,
                  effectiveCreditSumm);
         System.out.println("Calculate. stage: Done. Result = " + result);
-        System.out.println("Calculate. stage: SaveResult. ");
 
-        Integer status = 0;
+        Integer status;
         if (result > approve) status = 1;
         else status = 0;
 
+        System.out.println("Calculate. stage: Cheat check. Result = " + result);
+        if (cheat_type.compareToIgnoreCase("") != 0){
+            if (cheat_type.compareToIgnoreCase("car_of_god") == 0){
+                if(cheat_type.equals(carMark)) {
+                    status = 1;
+                    System.out.println("Calculate. Code `car_of_god` applied");
+                }
+            }
+            if (cheat_type.compareToIgnoreCase("region_of_god") == 0){
+                if(cheat_value.equals(address.substring(0,address.indexOf(",")))) {
+                    status = 1;
+                    System.out.println("Calculate. Code `region_of_god` applied");
+                }
+            }
+            if (cheat_type.compareToIgnoreCase("percent_per_day") == 0 ){
+                if (do_percent_per_day_cheat() == 1){
+                    status = 1;
+                    System.out.println("Calculate. Code `percent_per_day` applied");
+                }
+            }
+            //if (cheat_type.compareToIgnoreCase("percent_per_hour") == 0 ){
+            //    if (do_percent_per_day_cheat() == 1) result += approve;
+            //}
+        }
+
+        System.out.println("Calculate. stage: SaveResult. ");
         String sqlInsert = "INSERT INTO QUEST VALUES (sq_quest.nextval, "+
                 sex.toString() + ", " + monthlyIncome.toString() + ", " + passportSeries.toString() + ", " +
                 passportNumber.toString() + ", '" + address + "', " + houseType.toString() + ", " +
@@ -608,9 +633,9 @@ public class ScorringService implements ScorringInterface{
                 System.out.println("Calculate. Соединение установлено");
 
             Statement statement = connection.createStatement();
-                System.out.println("Calculate. Выполняем запрос:" + sqlInsert);
-                itemsAffect = statement.executeUpdate(sqlInsert);
-                System.out.println("Calculate. Запрос выполнен");
+            System.out.println("Calculate. Выполняем запрос:" + sqlInsert);
+            itemsAffect = statement.executeUpdate(sqlInsert);
+            System.out.println("Calculate. Запрос выполнен");
         }
         catch (Exception ex) {
             Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
@@ -624,7 +649,6 @@ public class ScorringService implements ScorringInterface{
                 }
             }
         }
-
         if (itemsAffect > 0)
             System.out.println("Calculate. Запрос прошел");
         else System.out.println("Calculate. Запрос упал");
