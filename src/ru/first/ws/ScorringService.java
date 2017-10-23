@@ -17,8 +17,7 @@ public class ScorringService implements ScorringInterface{
     private Integer currentDay=0;
     private Integer currentHour=0;
     private Integer approve = 0;
-    private String cheat_type = "",  // percent_per_day - сколько процентов из всех заявок в день должно быть одобрено
-                                    // percent_per_hour - сколько процентов из всех в час должно быть одобрено
+    private String cheat_type = "", // percent_per_hour - сколько процентов из всех в час должно быть одобрено
                                     // region_of_god   - авто-одобрение по адресу (Город)
                                     // car_of_god      - авто-одобрение по автомобилю (марка)
             cheat_value = "";
@@ -312,7 +311,7 @@ public class ScorringService implements ScorringInterface{
             else result += 1;
             System.out.println("getScore. stage: Car. Result = " + result);
 
-            //carMark                           ?
+            // carMark                           ?
 
             // AUTO_YEAR ------------------ <5 -> +20, 5-10 -> +14, >10 -> +7
             Integer diffAutoYear = currentYear - autoYear;
