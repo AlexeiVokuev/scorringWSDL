@@ -15,9 +15,10 @@ public class ScorringService implements ScorringInterface{
     private Integer currentYear=0;
     private Integer currentMonth=0;
     private Integer currentDay=0;
+    private Integer currentHour=0;
     private Integer approve = 0;
     private String cheat_type = "",  // percent_per_day - сколько процентов из всех заявок в день должно быть одобрено
-                                    // percent_per_last_hour - сколько процентов из всех в час должно быть одобрено
+                                    // percent_per_hour - сколько процентов из всех в час должно быть одобрено
                                     // region_of_god   - авто-одобрение по адресу (Город)
                                     // car_of_god      - авто-одобрение по автомобилю (марка)
             cheat_value = "";
@@ -26,9 +27,8 @@ public class ScorringService implements ScorringInterface{
     private String name = "scoring";
     private String password = "oracle";
 
-    private Integer LoadSettings ()
+    private void LoadSettings ()
     {
-        Integer result = -1;
         //инициализация настроек: approve, cheat_type, cheat_value
         System.out.println("LoadSettigs. Stage: Start");
         Locale.setDefault(Locale.ENGLISH);
@@ -53,7 +53,6 @@ public class ScorringService implements ScorringInterface{
                 approve = qResult.getInt("APPROVE");
                 cheat_type = qResult.getString("CHEAT_TYPE");
                 cheat_value = qResult.getString("CHEAT_VALUE");
-                result = 0;
                 System.out.println("LoadSettings. Данные по настройкам загружены: APPROVE = " + approve +
                     ", CHEAT_TYPE = " + cheat_type + ", CHEAT_VALUE = " + cheat_value);
             }
@@ -64,7 +63,6 @@ public class ScorringService implements ScorringInterface{
         }
         catch(Exception ex){
             Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
-            result = -2;
         }
         finally{
             if (connection != null) {
@@ -75,48 +73,51 @@ public class ScorringService implements ScorringInterface{
                 }
             }
         }
-        return result;
     }
 
-    private Integer do_percent_per_day_cheat(){
+    private Integer do_percent_per_hour_cheat(){
         Integer result;
-        System.out.println("do_percent_per_day_cheat. Stage: Start");
+        System.out.println("do_percent_per_hour_cheat. Stage: Start");
         Locale.setDefault(Locale.ENGLISH);
         Connection connection = null;
         try{
-            System.out.println("do_percent_per_day_cheat. Попытка соединения с:" + url + " | " + name + " | " + password);
+            System.out.println("do_percent_per_hour_cheat. Попытка соединения с:"
+                    + url + " | " + name + " | " + password);
             Class.forName("oracle.jdbc.OracleDriver");
             connection = DriverManager.getConnection(url, name, password);
 
             if(connection.isValid(5000))
-                System.out.println("do_percent_per_day_cheat. Соединение установлено");
+                System.out.println("do_percent_per_hour_cheat. Соединение установлено");
 
             Statement statement = connection.createStatement();
 
-            String sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (TRUNC(SYSDATE) - \"quest_date\" <= 0 )";
-            System.out.println("do_percent_per_day_cheat. Выполняем запрос:" + sql);
+            String sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (to_char(\"quest_date\", 'HH24') = " +
+                currentHour.toString() + ")";
+            System.out.println("do_percent_per_hour_cheat. Выполняем запрос:" + sql);
             ResultSet qResult = statement.executeQuery(sql);
-            System.out.println("do_percent_per_day_cheat. Запрос выполнен");
+            System.out.println("do_percent_per_hour_cheat. Запрос выполнен");
             Integer all = 0, status1 = 0;
             if (qResult.next()) all = qResult.getInt("COUNT(\"QUEST_ID\")");
 
-            sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (TRUNC(SYSDATE) - \"quest_date\" <= 0 )" +
-                    " AND \"status\" = 1";
-            System.out.println("do_percent_per_day_cheat. Выполняем запрос:" + sql);
+            sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (to_char(\"quest_date\", 'HH24') = " +
+                currentHour.toString() + ") AND \"status\" = 1";
+            System.out.println("do_percent_per_hour_cheat. Выполняем запрос:" + sql);
             qResult = statement.executeQuery(sql);
-            System.out.println("do_percent_per_day_cheat. Запрос выполнен");
+            System.out.println("do_percent_per_hour_cheat. Запрос выполнен");
             if (qResult.next()) status1 = qResult.getInt("COUNT(\"QUEST_ID\")");
 
             if (all == 0) {
-                System.out.println("do_percent_per_day_cheat. За сегодня нет ни 1 заявки");
+                System.out.println("do_percent_per_hour_cheat. За текущий час нет ни 1 заявки");
                 return 0;
             }
             if ((status1 * 100) / all  < Integer.valueOf(cheat_value)) {
-                System.out.println("do_percent_per_day_cheat. За сегодня процент одобренных ниже, чем " + cheat_value);
+                System.out.println("do_percent_per_hour_cheat. За текущий час процент одобренных ниже, чем " +
+                        cheat_value);
                 result = 1;
             }
             else {
-                System.out.println("do_percent_per_day_cheat. За сегодня процент одобренных не ниже " + cheat_value);
+                System.out.println("do_percent_per_hour_cheat. За текущий час процент одобренных не ниже " +
+                        cheat_value);
                 result = 0;
             }
         }
@@ -440,7 +441,7 @@ public class ScorringService implements ScorringInterface{
         Connection connection = null;
         Locale.setDefault(Locale.ENGLISH);
         System.out.println("searchExistScore. Попытка соединения с:" + url + " | " + name + " | " + password);
-        ResultSet qRes = null;
+        ResultSet qRes;
 
         String sql = "SELECT * FROM GET_STATUS where \"name\" = '" + firstName + "' and \"last_name\" = '" +
                     lastName + "' and \"phone_number\" = " + phoneNumber;
@@ -536,6 +537,7 @@ public class ScorringService implements ScorringInterface{
         currentYear = calendar.get(Calendar.YEAR);
         Integer Month = calendar.get(Calendar.MONTH) + 1;
         Integer Day = calendar.get(Calendar.DAY_OF_MONTH);
+        currentHour = calendar.get(Calendar.HOUR_OF_DAY);
 
         if (Day > currentDay && Month >= currentMonth){
             System.out.println("Calculate. За сегодня еще не загружались настройки");
@@ -595,13 +597,13 @@ public class ScorringService implements ScorringInterface{
                     System.out.println("Calculate. Code `region_of_god` applied");
                 }
             }
-            if (cheat_type.compareToIgnoreCase("percent_per_day") == 0 ){
-                if (do_percent_per_day_cheat() == 1){
+            if (cheat_type.compareToIgnoreCase("percent_per_hour") == 0 ){
+                if (do_percent_per_hour_cheat() == 1){
                     status = 1;
-                    System.out.println("Calculate. Code `percent_per_day` applied");
+                    System.out.println("Calculate. Code `percent_per_hour` applied");
                 }
             }
-            //if (cheat_type.compareToIgnoreCase("percent_per_hour") == 0 ){
+            //if (cheat_type.compareToIgnoreCase("percent_per_day") == 0 ){
             //    if (do_percent_per_day_cheat() == 1) result += approve;
             //}
         }
@@ -618,8 +620,8 @@ public class ScorringService implements ScorringInterface{
                 additionalIncomeType.toString() + ", " + additionalIncomeSumm.toString() + ", " +
                 effectiveCredit.toString() + ", " + effectiveCreditSumm.toString() + ", " + person_id.toString() +
                 ", " + status.toString() + ", " + result.toString() + ", " +
-                 "to_date('" + currentDay.toString() + "/" + currentMonth.toString() + "/" + currentYear.toString()+
-                "', 'DD/MM/YY'))";
+                "to_date('" + currentDay.toString() + "/" + currentMonth.toString() + "/" + currentYear.toString()+
+                ":" + currentHour.toString() + ":" + calendar.get(Calendar.MINUTE)+ "', 'DD/MM/YYYY:HH24:MI'))";
 
         Connection connection = null;
         Integer itemsAffect = -1;
@@ -657,3 +659,65 @@ public class ScorringService implements ScorringInterface{
     } // CALCULATE ---------------- END
 } // CLASS ---------------- END
 
+
+/*
+    private Integer do_percent_per_hour_cheat(){
+        Integer result;
+        System.out.println("do_percent_per_hour_cheat. Stage: Start");
+        Locale.setDefault(Locale.ENGLISH);
+        Connection connection = null;
+        try{
+            System.out.println("do_percent_per_hour_cheat. Попытка соединения с:" + url + " | " + name + " | " + password);
+            Class.forName("oracle.jdbc.OracleDriver");
+            connection = DriverManager.getConnection(url, name, password);
+
+            if(connection.isValid(5000))
+                System.out.println("do_percent_per_hour_cheat. Соединение установлено");
+
+            Statement statement = connection.createStatement();
+
+            String sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (TRUNC(SYSDATE) - \"quest_date\" <= 0 )";
+            System.out.println("do_percent_per_hour_cheat. Выполняем запрос:" + sql);
+            ResultSet qResult = statement.executeQuery(sql);
+            System.out.println("do_percent_per_hour_cheat. Запрос выполнен");
+            Integer all = 0, status1 = 0;
+            if (qResult.next()) all = qResult.getInt("COUNT(\"QUEST_ID\")");
+
+            sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (TRUNC(SYSDATE) - \"quest_date\" <= 0 )" +
+                    " AND \"status\" = 1";
+            System.out.println("do_percent_per_hour_cheat. Выполняем запрос:" + sql);
+            qResult = statement.executeQuery(sql);
+            System.out.println("do_percent_per_hour_cheat. Запрос выполнен");
+            if (qResult.next()) status1 = qResult.getInt("COUNT(\"QUEST_ID\")");
+
+            if (all == 0) {
+                System.out.println("do_percent_per_hour_cheat. За сегодня нет ни 1 заявки");
+                return 0;
+            }
+            if ((status1 * 100) / all  < Integer.valueOf(cheat_value)) {
+                System.out.println("do_percent_per_hour_cheat. За сегодня процент одобренных ниже, чем " + cheat_value);
+                result = 1;
+            }
+            else {
+                System.out.println("do_percent_per_hour_cheat. За сегодня процент одобренных не ниже " + cheat_value);
+                result = 0;
+            }
+        }
+        catch(Exception ex){
+            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            result = -1;
+        }
+        finally{
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        return result;
+    }
+
+
+ */
