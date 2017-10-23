@@ -11,7 +11,7 @@
  Target Server Version : 110200
  File Encoding         : 65001
 
- Date: 23/10/2017 16:08:25
+ Date: 23/10/2017 17:59:31
 */
 
 
@@ -130,6 +130,11 @@ PARALLEL 1
 NOCACHE
 DISABLE ROW MOVEMENT
 ;
+
+-- ----------------------------
+-- Records of "SETTINGS"
+-- ----------------------------
+INSERT INTO "SCORING"."SETTINGS" VALUES ('1', '700', 'percent_per_hour', '50', TO_DATE('2017-10-22 00:00:00', 'SYYYY-MM-DD HH24:MI:SS'), TO_DATE('2018-10-22 00:00:00', 'SYYYY-MM-DD HH24:MI:SS'));
 
 -- ----------------------------
 -- View structure for GET_STATUS
