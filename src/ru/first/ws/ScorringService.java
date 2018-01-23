@@ -16,11 +16,10 @@ public class ScorringService implements ScorringInterface{
     private Integer currentMonth=0;
     private Integer currentDay=0;
     private Integer currentHour=0;
-    private Integer approve = 0;
-    private String cheat_type = "", // percent_per_hour - сколько процентов из всех в час должно быть одобрено
-                                    // region_of_god   - авто-одобрение по адресу (Город)
-                                    // car_of_god      - авто-одобрение по автомобилю (марка)
-            cheat_value = "";
+    private Integer approve = 0;      // то значение, при достижении которого получаем в результате одобрение
+    private String  cheat_type = "",  // percent_per_hour - сколько процентов из всех в час должно быть одобрено
+                                      // region_of_god - регион, в котором всегда одобрено
+                    cheat_value = ""; // значение для параметра - число или регион
 
     private String url = "jdbc:oracle:thin:@localhost:1521/XE";
     private String name = "scoring";
@@ -90,6 +89,8 @@ public class ScorringService implements ScorringInterface{
 
             Statement statement = connection.createStatement();
 
+            // получаем количество положительных и отрицательных анкет
+            // затем вычисляем процент положительных
             String sql = "SELECT COUNT(\"quest_id\") FROM QUEST WHERE (to_char(\"quest_date\", 'HH24') = " +
                 currentHour.toString() + ")";
             System.out.println("do_percent_per_hour_cheat. Выполняем запрос:" + sql);
@@ -584,12 +585,6 @@ public class ScorringService implements ScorringInterface{
 
         System.out.println("Calculate. stage: Cheat check. Result = " + result);
         if (cheat_type.compareToIgnoreCase("") != 0){
-            if (cheat_type.compareToIgnoreCase("car_of_god") == 0){
-                if(cheat_type.equals(carMark)) {
-                    status = 1;
-                    System.out.println("Calculate. Code `car_of_god` applied");
-                }
-            }
             if (cheat_type.compareToIgnoreCase("region_of_god") == 0){
                 if(cheat_value.equals(address.substring(0,address.indexOf(",")))) {
                     status = 1;
