@@ -11,5 +11,5 @@ Oracle XE 11g
 В ScorringServicePub хардкодный url
 localhost должен быть определен (и единственный)
 
-http://localhost:1986/wss/hello?wsdl
+http://localhost:1986/ws/Scorring?wsdl
 /* ------------------------------------------------------------------------------------------------------------------ */
