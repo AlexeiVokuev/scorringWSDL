@@ -10,7 +10,7 @@ import java.util.Calendar;
 @WebService(endpointInterface = "ru.first.ws.ScorringInterface")
 
 
-public class ScorringService implements ScorringInterface{
+public class ScorringServiceImpl implements ScorringInterface{
 
     private Integer currentYear=0;
     private Integer currentMonth=0;
@@ -60,14 +60,14 @@ public class ScorringService implements ScorringInterface{
             }
         }
         catch(Exception ex){
-            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         finally{
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -122,7 +122,7 @@ public class ScorringService implements ScorringInterface{
             }
         }
         catch(Exception ex){
-            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             result = -1;
         }
         finally{
@@ -130,7 +130,7 @@ public class ScorringService implements ScorringInterface{
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -410,14 +410,14 @@ public class ScorringService implements ScorringInterface{
             }
         }
         catch (Exception ex) {
-            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         finally {
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -477,13 +477,13 @@ public class ScorringService implements ScorringInterface{
             }
         }
         catch (Exception ex) {
-            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -634,14 +634,14 @@ public class ScorringService implements ScorringInterface{
             System.out.println("Calculate. Запрос выполнен");
         }
         catch (Exception ex) {
-            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
         finally {
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -698,7 +698,7 @@ public class ScorringService implements ScorringInterface{
             }
         }
         catch(Exception ex){
-            Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             result = -1;
         }
         finally{
@@ -706,7 +706,7 @@ public class ScorringService implements ScorringInterface{
                 try {
                     connection.close();
                 } catch (SQLException ex) {
-                    Logger.getLogger(ScorringService.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(ScorringServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
